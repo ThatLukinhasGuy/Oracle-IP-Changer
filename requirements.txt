@@ -1,0 +1,3 @@
+customtkinter
+oci
+oci-cli
