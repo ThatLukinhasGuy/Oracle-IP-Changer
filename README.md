@@ -21,4 +21,4 @@ key_file=key.pem
 7. Done.
 
 ## TO-DO
-- [ ] Create an error output. For now rename the file to **IP_Changer.py** and see the error code.
+- [ ] Create an error output. For now, rename the file to **IP_Changer.py** and see the error code.
