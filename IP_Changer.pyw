@@ -105,17 +105,19 @@ class App(ctk.CTk):
         vnic_data = compute_client.list_vnic_attachments(
             compartment_id=user.compartment_id, instance_id=instance_id).data
         vcn_client = oci.core.VirtualNetworkClient(config)
+        deleteip = delete_ip(self)
         try:
-            deleteip = delete_ip(self)
             new_reserved_ip = create_reserved_ip(vcn_client, compartment_id, self)
-            attach_ip_to_vm(vcn_client, compute_client, instance_id, new_reserved_ip.id, vnic_display_name, self)
+            attach_ip = attach_ip_to_vm(vcn_client, compute_client, instance_id, new_reserved_ip.id, vnic_display_name, self)
+            vnic_list = [vcn_client.get_vnic(vnic_attachment.vnic_id).data
+                         for vnic_attachment in vnic_data]
         except oci.exceptions.ServiceError as e:
-            if e.status == 429:
-                error = "The operation finished with a error."
+            if e.status == 200:
+                pass
+            else:
+                error = f"The operation finished with a error.\nError code: {e.status}"
                 self.displayBox.delete("0.0", "200.0")
                 self.displayBox.insert("0.0", error)
-        vnic_list = [vcn_client.get_vnic(vnic_attachment.vnic_id).data
-            for vnic_attachment in vnic_data]
         public_ip = {i.display_name: i.public_ip for i in vnic_list}[display_name]
         text = f"New IP: {public_ip}"
         self.displayBox.delete("0.0", "200.0")
