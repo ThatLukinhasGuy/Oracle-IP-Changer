@@ -1,27 +1,11 @@
 import customtkinter as ctk
 import oci
-from oci.core.models import CreateVnicDetails
+from oci.core.models import CreateVnicDetails, GetPublicIpByPrivateIpIdDetails
 
 ctk.set_appearance_mode("Dark")
 ctk.set_default_color_theme("green")
 
-appWidth, appHeight = 265, 465
-
-def delete_ip(self):
-    config = oci.config.from_file(file_location="config.json")
-    compartment_id = self.comp_ocid.get()
-    instance_id = self.vm_ocid.get()
-    vnic_display_name = "dududini"
-    vcn_client = oci.core.VirtualNetworkClient(config)
-    ephemeral_ips = vcn_client.list_public_ips(
-        scope="AVAILABILITY_DOMAIN",
-        availability_domain=self.ad_name.get(),
-        lifetime="EPHEMERAL",
-        compartment_id=compartment_id,
-    ).data
-
-    for ephemeral_ip in ephemeral_ips:
-        vcn_client.delete_public_ip(public_ip_id=ephemeral_ip.id)
+appWidth, appHeight = 265, 475
 
 def create_reserved_ip(vcn_client, compartment_id, self):
     compartment_id = self.comp_ocid.get()
@@ -85,10 +69,39 @@ class App(ctk.CTk):
         self.vm_name.grid(row=5, column=0, columnspan=1, padx=7, pady=7, sticky="ew")
 
         self.change_ip_button = ctk.CTkButton(self, text="Change IP", command=self.change_ip)
-        self.change_ip_button.grid(row=6, column=0, padx=20, pady=20, sticky="ew")
+        self.change_ip_button.grid(row=6, column=0, padx=7, pady=7, sticky="ew")
+
+        self.delete_ip_button = ctk.CTkButton(self, text="Delete all IPs", command=self.delete_ip)
+        self.delete_ip_button.grid(row=7, column=0, padx=7, pady=7, sticky="ew")
 
         self.displayBox = ctk.CTkTextbox(self, width=225, height=115)
-        self.displayBox.grid(row=7, column=0, columnspan=4, padx=20, pady=20, sticky="nsew")
+        self.displayBox.grid(row=8, column=0, columnspan=4, padx=20, pady=20, sticky="nsew")
+
+    def delete_ip(self):
+        config = oci.config.from_file(file_location="config.json")
+        compartment_id = self.comp_ocid.get()
+        instance_id = self.vm_ocid.get()
+        vnic_display_name = "dududini"
+        vcn_client = oci.core.VirtualNetworkClient(config)
+        ephemeral_ips = vcn_client.list_public_ips(
+            scope="AVAILABILITY_DOMAIN",
+            availability_domain=self.ad_name.get(),
+            lifetime="EPHEMERAL",
+            compartment_id=compartment_id,
+        ).data
+
+        for ephemeral_ip in ephemeral_ips:
+            try:
+                vcn_client.delete_public_ip(public_ip_id=ephemeral_ip.id)
+            except oci.exceptions.ServiceError as e:
+                if e.status == 200:
+                    text = f"The operation successfully."
+                    self.displayBox.delete("0.0", "200.0")
+                    self.displayBox.insert("0.0", text)
+                else:
+                    error = f"The operation finished with a error.\nError code: {e.status}"
+                    self.displayBox.delete("0.0", "200.0")
+                    self.displayBox.insert("0.0", error)
 
     def change_ip(self):
         compartment_id = self.comp_ocid.get()
@@ -105,7 +118,6 @@ class App(ctk.CTk):
         vnic_data = compute_client.list_vnic_attachments(
             compartment_id=user.compartment_id, instance_id=instance_id).data
         vcn_client = oci.core.VirtualNetworkClient(config)
-        deleteip = delete_ip(self)
         try:
             new_reserved_ip = create_reserved_ip(vcn_client, compartment_id, self)
             attach_ip = attach_ip_to_vm(vcn_client, compute_client, instance_id, new_reserved_ip.id, vnic_display_name, self)
