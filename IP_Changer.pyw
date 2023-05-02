@@ -5,7 +5,7 @@ from oci.core.models import CreateVnicDetails
 ctk.set_appearance_mode("Dark")
 ctk.set_default_color_theme("green")
 
-appWidth, appHeight = 265, 425
+appWidth, appHeight = 265, 465
 
 def delete_ip(self):
     config = oci.config.from_file(file_location="config.json")
@@ -15,7 +15,7 @@ def delete_ip(self):
     vcn_client = oci.core.VirtualNetworkClient(config)
     ephemeral_ips = vcn_client.list_public_ips(
         scope="AVAILABILITY_DOMAIN",
-        availability_domain="oYmr:SA-VINHEDO-1-AD-1",
+        availability_domain=self.ad_name.get(),
         lifetime="EPHEMERAL",
         compartment_id=compartment_id,
     ).data
@@ -71,21 +71,24 @@ class App(ctk.CTk):
 
         self.ip_ocid = ctk.CTkEntry(self, placeholder_text="Private IP OCID", width=250, height=25)
         self.ip_ocid.grid(row=1, column=0, columnspan=1, padx=7, pady=7, sticky="ew")
+        
+        self.ad_name = ctk.CTkEntry(self, placeholder_text="Availability Domain", width=250, height=25)
+        self.ad_name.grid(row=2, column=0, columnspan=1, padx=7, pady=7, sticky="ew")
 
         self.vm_ocid = ctk.CTkEntry(self, placeholder_text="Virtual Machine OCID", width=250, height=25)
-        self.vm_ocid.grid(row=2, column=0, columnspan=1, padx=7, pady=7, sticky="ew")
+        self.vm_ocid.grid(row=3, column=0, columnspan=1, padx=7, pady=7, sticky="ew")
 
         self.comp_ocid = ctk.CTkEntry(self, placeholder_text="Compartment OCID", width=250, height=25)
-        self.comp_ocid.grid(row=3, column=0, columnspan=1, padx=7, pady=7, sticky="ew")
+        self.comp_ocid.grid(row=4, column=0, columnspan=1, padx=7, pady=7, sticky="ew")
 
         self.vm_name = ctk.CTkEntry(self, placeholder_text="Virtual Machine Name", width=250, height=25)
-        self.vm_name.grid(row=4, column=0, columnspan=1, padx=7, pady=7, sticky="ew")
+        self.vm_name.grid(row=5, column=0, columnspan=1, padx=7, pady=7, sticky="ew")
 
         self.change_ip_button = ctk.CTkButton(self, text="Change IP", command=self.change_ip)
-        self.change_ip_button.grid(row=5, column=0, padx=20, pady=20, sticky="ew")
+        self.change_ip_button.grid(row=6, column=0, padx=20, pady=20, sticky="ew")
 
         self.displayBox = ctk.CTkTextbox(self, width=225, height=115)
-        self.displayBox.grid(row=6, column=0, columnspan=4, padx=20, pady=20, sticky="nsew")
+        self.displayBox.grid(row=7, column=0, columnspan=4, padx=20, pady=20, sticky="nsew")
 
     def change_ip(self):
         compartment_id = self.comp_ocid.get()
@@ -121,4 +124,3 @@ if __name__ == "__main__":
     app = App()
     # Used to run the application
     app.mainloop()
-
