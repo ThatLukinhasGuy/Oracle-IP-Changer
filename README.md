@@ -1,4 +1,4 @@
-# Oracle-IP-Changer
+# Oracle IP Changer
 IP Changer for Oracle Cloud for VMs.
 
 ## How to use
