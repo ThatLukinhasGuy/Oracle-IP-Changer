@@ -1,5 +1,5 @@
 # Oracle IP Changer
-IP Changer for Oracle Cloud for VMs.
+IP Changer for Oracle Cloud VMs.
 
 ## How to use
 1. Download or clone the repository.
