@@ -131,7 +131,7 @@ class App(ctk.CTk):
             pass
         else:
             webhook = DiscordWebhook(url=self.webhook_url.get())
-            embed = DiscordEmbed(title='New IP', description=f'`{public_ip}`', color='e60000')
+            embed = DiscordEmbed(title='New IP', description=f'`{public_ip}`', color='00c936')
             webhook.add_embed(embed)
             response = webhook.execute()
         self.displayBox.delete("0.0", "200.0")
