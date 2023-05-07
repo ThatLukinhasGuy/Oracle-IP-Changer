@@ -127,13 +127,13 @@ class App(ctk.CTk):
                 self.displayBox.delete("0.0", "200.0")
                 self.displayBox.insert("0.0", error)
         public_ip = {i.display_name: i.public_ip for i in vnic_list}[display_name]
-        if self.webhook_url.get() is None:
-            pass
-        else:
+        if self.webhook_url.get() is not None:
             webhook = DiscordWebhook(url=self.webhook_url.get())
             embed = DiscordEmbed(title='New IP', description=f'`{public_ip}`', color='00c936')
             webhook.add_embed(embed)
             response = webhook.execute()
+        else:
+            pass
         self.displayBox.delete("0.0", "200.0")
         text = f"New IP: {public_ip}"
         self.displayBox.insert("0.0", text)
